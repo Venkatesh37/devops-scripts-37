@@ -1,0 +1,16 @@
+---
+- name: downloading required dependencies
+  hosts: localhost
+  tasks:
+    - name: Downloading JavaAnd Dependencies
+      yum:
+        name: "{{ item }}"
+        state: present
+      tags:
+        - task1
+      with_items:
+        - java-1.8.0-openjdk-devel
+        - wget
+        - git
+        - unzip
+      when: ansible_distribution == "CentOS"

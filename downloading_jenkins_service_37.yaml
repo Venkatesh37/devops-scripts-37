@@ -1,0 +1,32 @@
+---
+- name: downloading jenkins service
+  hosts: localhost
+  tasks:
+    - name: Downloading Jenkins ServiceRepository
+      get_url:
+        url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d
+      tags:
+        - task1
+      when: ansible_distribution == "CentOS"
+    - name: Downloading Jenkins RPMKey
+      rpm_key:
+        key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+        state: present
+      tags:
+        - task2
+      when: ansible_distribution == "CentOS"
+    - name: Downloading Jenkins Service
+      yum:
+        name: jenkins
+        state: present
+      tags:
+        - task3
+      when: ansible_distribution == "CentOS"
+    - name: StartingTHE Jenkins Service
+      service:
+         name: jenkins
+         state: started
+      tags:
+        - task4
+      when: ansible_distribution == "CentOS"

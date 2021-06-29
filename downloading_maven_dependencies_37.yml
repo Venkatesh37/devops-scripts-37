@@ -1,0 +1,19 @@
+---
+- name: downloading apache maven
+  hosts: localhost
+  tasks:
+    - name: Downloading Apache Maven
+      get_url:
+        url: https://mirrors.estointernet.in/apache/maven/maven-3/3.8.1/binaries/apache-maven-3.8.1-bin.tar.gz
+        dest: /opt
+        mode: "0755"
+      tags:
+        - task1
+      when: ansible_distribution == "CentOS"
+    - name: UnarchivingTHE Apache MAvenFOLDER
+      unarchive:
+        src: /opt/apache-maven-3.8.1-bin.tar.gz
+        dest: /opt
+      tags:
+        - task2
+      when: ansible_distribution == "CentOS"

@@ -1,0 +1,18 @@
+---
+- name: downloading docker service
+  hosts: localhost
+  tasks:
+    - name: Downloading Docker Service
+      yum:
+        name: docker
+        state: present
+      tags:
+        - task1
+      when: ansible_distribution == "CentOS"
+    - name: StartingThe Docker Service
+      service:
+        name: docker
+        state: started
+      tags:
+        - task2
+      when: ansible_distribution == "CentOS"

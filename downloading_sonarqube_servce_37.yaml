@@ -1,0 +1,63 @@
+---
+- name: downloading sonarqube service
+  hosts: sonarserver
+  gather_facts: true
+  tasks:
+    - name: Downloading sonar Dependencies
+      yum:
+        name: "{{ item }}"
+        state: present
+      tags:
+        - task1
+      with_items:
+        - java-11-openjdk-devel
+        - wget
+        - unzip
+      when: ansible_distribution == "CentOS"
+    - name: DownloadThe Sonar Folder
+      get_url:
+        url: "{{ sonar_url }}"
+        dest: /opt
+        mode: "0755"
+      tags:
+        - task2
+      when: ansible_distribution == "CentOS"
+    - name: UnarchivingTHE Sonar Folder
+      unarchive:
+        src: "{{ sonar_path }}"
+        dest: /opt
+        remote_src: yes
+      tags:
+        - task3
+      when: ansible_distribution == "CentOS"
+    - name: ChnagingTHE OwnerShipFOR SonarFOLDER
+      file:
+        path: /opt/sonarqube-8.9.1.44547
+        owner: cvgdevops373737 
+        group: cvgdevops373737
+        recurse: yes
+      tags:
+        - task4
+      when: ansible_distribution == "CentOS"
+    - name: ChangingTHE UserNameFOR SonarFOLDER
+      lineinfile:
+        path: /opt/sonarqube-8.9.1.44547/bin/linux-x86-64/sonar.sh
+        regexp: "#RUN_AS_USER="
+        line: "RUN_AS_USER=cvgdevops373737"
+      tags:
+        - task5
+      when: ansible_distribution == "CentOS"
+    - name: Copy SonarQube service from local to remote
+      copy:
+        src: /opt/sonar.service
+        dest: /etc/systemd/system/
+        mode: 0755
+        
+    - name: just force systemd to reread configs (2.4 and above)
+      systemd:
+        daemon_reload: yes
+
+    - name: enable SonarQube startup
+      service:
+        name: sonar
+        state: restarted
