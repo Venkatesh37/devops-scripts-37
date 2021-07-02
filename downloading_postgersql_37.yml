@@ -55,3 +55,38 @@
         method: md5
         users: "{{ db_user }}"
         create: true
+---
+- name: downloading java dependencies
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars:
+    db_user: postgresql
+    db_password: Sai@373737
+    db_name: postgresdb
+  tasks:
+    - name: Downloading JavaFOR PostgreSql
+      yum:
+        name: java-1.8.0-openjdk-devel
+        state: present
+    - name: Downloading PostgreSql RPM
+      get_url:
+        url: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+        dest: /opt
+        mode: "0755"
+    - name: Downloading RPMFOR PostgreSql
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - postgresql13-server
+    - name: InitializingTHE PostgreSql DATABase
+      command: sudo /usr/pgsql-13/bin/postgresql-13-setup initdb
+    - name: EnablingTHE PostGRESQL Service
+      service:
+        name: postgresql-13
+        state: started
+        enabled: yes
+      tags:
+        - postgreservicestart
+
