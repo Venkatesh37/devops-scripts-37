@@ -1,0 +1,57 @@
+---
+- name: Downloading PostgreSql Dependencies
+  hosts: localhost
+  vars:
+    db_user: postgresql
+    db_password: Sai@373737
+    db_name: postgresdb
+
+  tasks:
+    - name: Downloading Java for PostgreSql
+      yum:
+        name: java-1.8.0-openjdk-devel
+        state: present
+      tags:
+        - installjava
+    - name: RunningThe Required Commands for PostgreSql
+      command: "{{ item }}"
+      with_items:
+        - sysctl vm.max_map_count
+        - sysctl fs.file-max
+    - name: Downloading Postgresql Database
+      yum:
+        name: "{{ item }}"
+      with_items:
+          - postgresql-server
+          - postgresql-contrib
+    - name: Initializing The PostgreSqlDB
+      command: sudo postgresql-setup initdb 
+    - name: Enabling THE PostgreSql
+      service:
+        name: postgresql
+        state: started
+        enabled: yes
+    - name: Creating PostgreSql Database
+      postgresql_db:
+        state: present
+        name: "{{ db_name }}"
+    - name: Create PostgerSqldb user
+      postgresql_user:
+        state: present
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+    - name: Grant db user access to app db
+      postgresql_privs:
+        type: database
+        database: "{{ db_name }}"
+        roles: "{{ db_user }}"
+        grant_option: no
+        privs: all
+    - name: Allow md5 connection for the db user
+      postgresql_pg_hba:
+        dest: /var/lib/pgsql/data/pg_hba.conf
+        contype: host
+        databases: all
+        method: md5
+        users: "{{ db_user }}"
+        create: true
