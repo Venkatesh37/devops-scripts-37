@@ -80,8 +80,14 @@
         state: present
       with_items:
         - postgresql13-server
+    tasks:
+    - name: "Find out if PostgreSQL is initialized"
+      ansible.builtin.stat:
+        path: /var/lib/pgsql/data/pg_hba.conf
+      register: postgres_data
     - name: InitializingTHE PostgreSql DATABase
       command: sudo /usr/pgsql-13/bin/postgresql-13-setup initdb
+      when: not postgres_data.stat.exists
     - name: EnablingTHE PostGRESQL Service
       service:
         name: postgresql-13
