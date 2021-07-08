@@ -96,6 +96,7 @@
         - postgreservicestart
 ==========================================
 below one is working fine
+ref: https://stribny.name/blog/ansible-postgresql/
 ---
 - name: installing postgresql tasks
   hosts: localhost
