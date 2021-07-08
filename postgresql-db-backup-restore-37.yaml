@@ -1,0 +1,37 @@
+Code Ref:https://stribny.name/blog/ansible-postgresql-backups/
+
+---
+- name: Taking Backup DATABASE
+  hosts: localhost
+  vars:
+    user_app: sdtv37
+    app_name: app37
+    db_name: sdtv
+  become: yes
+  tasks:
+    - name: Adding User to the group
+      user:
+        name: sdtv37
+        group: wheel
+    - name: CreatingThe TimeStamp Folder
+      set_fact:
+        now: "{{ lookup('pipe', 'date +%F-%T') }}"
+    - name: Create a backup directory
+      file:
+        path: "/var/lib/{{ app_name }}/backups/{{ now }}/"
+        mode: 0777
+        owner: "{{ user_app }}"
+        state: directory
+        recurse: yes
+    - name: "Back up the database"
+      postgresql_db:
+        state: dump
+        name: "{{ db_name }}"
+        target: "/var/lib/{{ app_name }}/backups/{{ now }}/{{ db_name }}.dump.gz"
+      become: yes
+      become_user: postgres
+    -  name: "Fetch backup from the server"
+       fetch:
+         src: "/var/lib/{{ app_name }}/backups/{{ now }}/{{ db_name }}.dump.gz"
+         dest: "backups/{{ now }}/{{ db_name }}.dump.gz"
+         flat: yes
