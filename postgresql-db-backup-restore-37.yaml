@@ -1,5 +1,3 @@
-Code Ref:https://stribny.name/blog/ansible-postgresql-backups/
-
 ---
 - name: Taking Backup DATABASE
   hosts: localhost
@@ -35,3 +33,22 @@ Code Ref:https://stribny.name/blog/ansible-postgresql-backups/
          src: "/var/lib/{{ app_name }}/backups/{{ now }}/{{ db_name }}.dump.gz"
          dest: "backups/{{ now }}/{{ db_name }}.dump.gz"
          flat: yes
+#    - name: "Create a backup directory"
+#     file:
+#        path: "/var/lib/{{ app_name }}/backups/uploads/{{ backup_file | dirname }}"
+#       mode: 0777
+#        owner: "{{ user_app }}"
+#       state: directory
+
+#    - name: "Copy backup to the server"
+#     copy:
+#        src: "backups/{{ backup_file }}"
+#        dest: "/var/lib/{{ app_name }}/backups/uploads/{{ backup_file }}"
+
+    - name: "Restore the database"
+      postgresql_db:
+        state: restore
+        name: backuprestore
+        target: /var/lib/app37/backups/2021-07-08-08:44:30/sdtv.dump.gz
+      become: yes
+      become_user: postgres
